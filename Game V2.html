@@ -3,13 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Cosmic Genesis: Black Hole Simulation</title>
+    <title>Cosmic Genesis: Universe Architect</title>
     <style>
+        /* CORE UI */
         body { margin: 0; overflow: hidden; background-color: #000; font-family: 'Segoe UI', sans-serif; user-select: none; touch-action: none; }
         canvas { display: block; position: absolute; top: 0; left: 0; z-index: 1; }
         #video-input { position: absolute; opacity: 0; pointer-events: none; z-index: -1; width: 1px; height: 1px; }
 
-        /* UI */
+        /* HUD & OVERLAYS */
         #ui-layer {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             pointer-events: none; z-index: 10;
@@ -25,21 +26,8 @@
             box-shadow: 0 0 20px rgba(0, 210, 255, 0.2);
             border-radius: 4px;
         }
-        #start-btn:hover { 
-            background: #00d2ff; color: #000; 
-            box-shadow: 0 0 50px rgba(0, 210, 255, 0.8); 
-        }
+        #start-btn:hover { background: #00d2ff; color: #000; box-shadow: 0 0 50px rgba(0, 210, 255, 0.8); }
 
-        #status-bar { position: absolute; bottom: 30px; width: 100%; text-align: center; }
-        .status-text {
-            color: rgba(255,255,255,0.6); font-size: 12px; letter-spacing: 3px;
-            text-shadow: 0 0 5px #000; display: inline-block;
-            background: rgba(0,0,0,0.5); padding: 5px 15px; border-radius: 20px;
-        }
-        .alert-mode { color: #ff0055 !important; border: 1px solid #ff0055; box-shadow: 0 0 20px #ff0055; animation: pulse 0.5s infinite; }
-        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
-
-        /* PART 1 ENHANCEMENT: Cinematic Narrative Layer */
         #narrative-display {
             position: absolute; bottom: 80px; width: 100%; text-align: center;
             font-family: 'Courier New', monospace; font-size: 14px;
@@ -48,9 +36,9 @@
             opacity: 0.8; pointer-events: none; transition: opacity 0.5s ease;
         }
 
-        /* PART 2 GAME SYSTEM: HUD & Overlays */
+        /* GAME HUD */
         #game-hud {
-            position: absolute; top: 20px; left: 20px; width: 300px;
+            position: absolute; top: 20px; left: 20px; width: 320px;
             pointer-events: none; display: none; opacity: 0; transition: opacity 1s;
         }
         .hud-row {
@@ -58,23 +46,22 @@
             font-family: 'Courier New', monospace; letter-spacing: 1px;
             text-shadow: 0 0 2px #000;
         }
-        .bar-container {
-            width: 100%; height: 6px; background: rgba(255,255,255,0.1);
-            margin-top: 4px; border-radius: 3px; overflow: hidden;
-        }
-        .bar-fill {
-            height: 100%; background: #00d2ff; width: 100%; transition: width 0.1s;
-        }
+        .bar-bg { width: 100%; height: 6px; background: rgba(255,255,255,0.1); margin-top: 4px; border-radius: 3px; overflow: hidden; }
+        .bar-fill { height: 100%; width: 100%; transition: width 0.1s, background-color 0.5s; }
         #stability-fill { background: #00ff88; }
-        .hud-value { float: right; color: #fff; font-weight: bold; }
+        #mass-fill { background: #00d2ff; }
+        .hud-val { float: right; color: #fff; font-weight: bold; }
+        .hud-label { color: #88ccff; }
 
-        #instructions-modal {
+        /* MODALS */
+        #instructions-modal, #naming-modal {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.9); z-index: 50; display: none;
             flex-direction: column; justify-content: center; align-items: center;
-            text-align: center; padding: 20px; box-sizing: border-box;
-            pointer-events: auto;
+            text-align: center; padding: 20px; box-sizing: border-box; pointer-events: auto;
         }
+        #naming-modal { background: rgba(10, 10, 20, 0.95); z-index: 60; }
+
         .instr-title { color: #00d2ff; font-size: 24px; letter-spacing: 5px; margin-bottom: 20px; }
         .instr-text { color: #ccc; max-width: 600px; line-height: 1.6; margin-bottom: 30px; font-size: 14px; }
         .instr-btn {
@@ -84,29 +71,22 @@
         }
         .instr-btn:hover { background: #fff; color: #000; }
 
-        #big-bang-overlay {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: white; z-index: 100; pointer-events: none; opacity: 0;
-            transition: opacity 0.1s;
-        }
-
-        #naming-modal {
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            background: rgba(10, 10, 20, 0.95); border: 1px solid #00d2ff;
-            padding: 40px; text-align: center; z-index: 60; display: none;
-            box-shadow: 0 0 50px rgba(0, 210, 255, 0.3);
-        }
         #galaxy-input {
             background: transparent; border: none; border-bottom: 2px solid #00d2ff;
             color: #fff; font-size: 20px; letter-spacing: 2px; padding: 10px;
             width: 250px; text-align: center; outline: none; margin-bottom: 20px;
         }
+
         #history-list {
             position: absolute; top: 20px; right: 20px; text-align: right;
-            pointer-events: none; display: none;
+            pointer-events: none; display: none; font-family: 'Courier New', monospace;
         }
         .history-item { color: rgba(255,255,255,0.4); font-size: 10px; letter-spacing: 1px; margin-bottom: 4px; }
 
+        #whiteout-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: white; z-index: 100; pointer-events: none; opacity: 0; transition: opacity 0.1s;
+        }
     </style>
 
     <!-- LIBS -->
@@ -117,8 +97,6 @@
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/CopyShader.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/LuminosityHighPassShader.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/UnrealBloomPass.js"></script>
-
-    <!-- AI -->
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
@@ -127,144 +105,83 @@
 
     <video id="video-input" playsinline webkit-playsinline muted autoplay></video>
 
+    <!-- UI STRUCTURE -->
     <div id="ui-layer">
-        <h1 style="color:white; font-weight:100; letter-spacing:8px; font-size: 2rem; text-shadow:0 0 20px black;">BINARY SYSTEM</h1>
+        <h1 id="title-text" style="color:white; font-weight:100; letter-spacing:8px; font-size: 2rem; text-shadow:0 0 20px black;">BINARY SYSTEM</h1>
         <button id="start-btn">ENGAGE GRAVITY</button>
-        <div id="status-bar"><span id="status-text" class="status-text">SYSTEM OFFLINE</span></div>
         <div id="narrative-display">OBSERVATORY ONLINE... ACQUIRING TARGET</div>
     </div>
 
-    <!-- PART 2 GAME SYSTEM: HTML Overlays -->
     <div id="game-hud">
-        <div class="hud-row">CURRENT GALAXY: <span id="galaxy-name-display" class="hud-value">ORIGIN</span></div>
-        <div class="hud-row">STAR MASS INTEGRITY <span id="star-health-val" class="hud-value">100%</span>
-            <div class="bar-container"><div id="star-health-bar" class="bar-fill"></div></div>
+        <div class="hud-row"><span class="hud-label">GALAXY:</span> <span id="hud-galaxy">ORIGIN</span></div>
+        <div class="hud-row"><span class="hud-label">PHASE:</span> <span id="hud-phase">STABLE</span></div>
+        <div class="hud-row">TARGET INTEGRITY <span id="hud-mass-val" class="hud-val">100%</span>
+            <div class="bar-bg"><div id="mass-fill" class="bar-fill"></div></div>
         </div>
-        <div class="hud-row">GRAVITATIONAL STABILITY <span id="stability-val" class="hud-value">100%</span>
-            <div class="bar-container"><div id="stability-fill" class="bar-fill"></div></div>
+        <div class="hud-row">GRAVIMETRIC STABILITY <span id="hud-stab-val" class="hud-val">100%</span>
+            <div class="bar-bg"><div id="stability-fill" class="bar-fill"></div></div>
         </div>
-        <div class="hud-row">TOTAL MASS ABSORBED <span id="score-val" class="hud-value">0 M☉</span></div>
-        <div class="hud-row">MASSIVE STARS CONSUMED <span id="massive-count-val" class="hud-value">0/3</span></div>
+        <div class="hud-row">MASS ABSORBED: <span id="hud-score" class="hud-val">0 M☉</span></div>
+        <div class="hud-row">MASSIVE STARS: <span id="hud-massive" class="hud-val">0/3</span></div>
     </div>
 
     <div id="instructions-modal">
-        <div class="instr-title">MISSION PROTOCOLS</div>
+        <div class="instr-title">MISSION PARAMETERS</div>
         <div class="instr-text">
-            <strong>CONTROL GRAVITY:</strong> Bring hands together to fire jets and consume the star.<br><br>
-            <strong>MAINTAIN STABILITY:</strong> Consuming too fast causes turbulence and control loss.<br><br>
-            <strong>THE GOAL:</strong> Completely absorb the companion star without destabilizing.<br><br>
-            <strong>THE PROPHECY:</strong> Consuming 3 MASSIVE stars will trigger a cosmological event.<br>
-            <em style="color:#00d2ff; display:block; margin-top:15px;">Pinch with one hand to Navigate.</em>
+            <strong>OBSERVE:</strong> Use one hand to navigate the galaxy.<br>
+            <strong>ENGAGE:</strong> Bring two hands together to activate gravity jets.<br>
+            <strong>CONSUME:</strong> Drain the companion star. Warning: Massive stars cause instability.<br>
+            <strong>EVOLVE:</strong> Consuming 3 MASSIVE stars triggers a cosmological reset.<br>
         </div>
-        <button class="instr-btn" id="instr-ok-btn">BEGIN SIMULATION</button>
+        <button class="instr-btn" id="instr-ok">BEGIN SIMULATION</button>
     </div>
 
     <div id="naming-modal">
-        <div class="instr-title" style="font-size:18px;">BIG BANG EVENT DETECTED</div>
-        <p style="color:#ccc; font-size:12px;">A new universe has formed from the singularity.</p>
+        <div class="instr-title">BIG BANG COMPLETE</div>
+        <p style="color:#aaa; font-size:12px;">Nebula cooling. Disk reformed. System Stable.</p>
         <input type="text" id="galaxy-input" placeholder="NAME NEW GALAXY" maxlength="15">
-        <br>
-        <button class="instr-btn" id="naming-ok-btn">INITIALIZE</button>
+        <br><br>
+        <button class="instr-btn" id="naming-ok">INITIALIZE EPOCH</button>
     </div>
 
-    <div id="big-bang-overlay"></div>
+    <div id="whiteout-overlay"></div>
     <div id="history-list"></div>
 
     <script>
-        // --- CONFIG ---
-        const CFG = {
+        /* -------------------------------------------------------------------------
+           PART 1: CORE ENGINE (Three.js, MediaPipe, Audio)
+           ------------------------------------------------------------------------- */
+        
+        const VISUALS = {
             jetCount: 3000,
-            streamCount: 2000, 
-            starPos: new THREE.Vector3(35, 2, -5), 
+            streamCount: 2000,
+            starPos: new THREE.Vector3(35, 2, -5),
+            blackHoleRadius: 3.5
         };
 
-        // --- GLOBALS ---
+        // GLOBALS
         let scene, camera, renderer, composer;
         let blackHoleGroup, accretionDisk, lensingRing;
         let jetParticles, feedingStream, nebulaGroup, dustSystem, companionStar;
         
+        // COSMIC REBIRTH SYSTEM: Extra Globals
+        let companionStar2, feedingStream2; 
+
         let time = 0;
-        let state = {
+        
+        let inputState = {
             gravityPower: 0,    
             targetPower: 0,
             zoom: 65,
             rotX: 0, rotY: 0
         };
 
-        // Audio Globals
+        // AUDIO
         let audioCtx, masterGain;
         let droneOsc, droneGain;
         let jetOsc, jetGain;
         let audioInitialized = false;
 
-        // Narrative State
-        let lastNarrativeUpdate = 0;
-
-        // PART 2 GAME SYSTEM: Globals & State
-        const GameState = {
-            phase: 'INTRO', // INTRO, INSTRUCTIONS, PLAYING, SEARCHING, NAMING
-            starHealth: 1.0,
-            stability: 1.0,
-            isMassiveStar: false,
-            massAbsorbed: 0,
-            massiveStarsConsumed: 0,
-            currentGalaxyName: "ORIGIN",
-            galaxyHistory: [],
-            starColor: new THREE.Color(0xaaccff), // Default Blue
-            instabilityTimer: 0
-        };
-
-        // --- 1. BOOT ---
-        document.getElementById('start-btn').addEventListener('click', async (e) => {
-            e.target.style.display = 'none';
-            document.querySelector('h1').style.display = 'none';
-            
-            initAudioSystem();
-            initThree();
-            createSurroundings();
-            createBlackHole();
-            createCompanionStar(); 
-            createFeedingStream(); 
-            createJets();
-            
-            // PART 2: Show instructions instead of starting immediately
-            GameState.phase = 'INSTRUCTIONS';
-            document.getElementById('instructions-modal').style.display = 'flex';
-            document.getElementById('ui-layer').style.opacity = 0; // Hide main UI for now
-
-            try { await initAI(); } catch { console.log("Visual Mode"); }
-            animate();
-        });
-
-        document.getElementById('instr-ok-btn').addEventListener('click', () => {
-            document.getElementById('instructions-modal').style.display = 'none';
-            document.getElementById('ui-layer').style.opacity = 1;
-            document.getElementById('game-hud').style.display = 'block';
-            setTimeout(() => document.getElementById('game-hud').style.opacity = 1, 100);
-            GameState.phase = 'PLAYING';
-            spawnNewStar(); // Spawn first star logic
-        });
-
-        document.getElementById('naming-ok-btn').addEventListener('click', () => {
-            const input = document.getElementById('galaxy-input');
-            const name = input.value.toUpperCase() || "UNKNOWN SECTOR";
-            GameState.galaxyHistory.push(GameState.currentGalaxyName);
-            GameState.currentGalaxyName = name;
-            GameState.massiveStarsConsumed = 0;
-            
-            updateHistoryUI();
-            
-            document.getElementById('galaxy-name-display').innerText = name;
-            document.getElementById('naming-modal').style.display = 'none';
-            document.getElementById('galaxy-input').value = "";
-            GameState.phase = 'PLAYING';
-            
-            // Fade big bang overlay out
-            document.getElementById('big-bang-overlay').style.opacity = 0;
-            spawnNewStar();
-        });
-
-        // Procedural Audio Engine
         function initAudioSystem() {
             try {
                 const AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -301,9 +218,10 @@
             } catch (e) { console.warn("Audio init failed", e); }
         }
 
-        function updateAudio() {
+        function updateAudioEngine() {
             if (!audioInitialized) return;
-            const power = state.gravityPower;
+            const power = inputState.gravityPower;
+            
             droneOsc.frequency.setTargetAtTime(40 + (power * 30), audioCtx.currentTime, 0.1);
             droneGain.gain.setTargetAtTime(0.1 + (power * 0.2), audioCtx.currentTime, 0.1);
 
@@ -315,41 +233,7 @@
             }
         }
 
-        function updateNarrative() {
-            const now = Date.now();
-            if (now - lastNarrativeUpdate < 2000) return; 
-
-            const textEl = document.getElementById('narrative-display');
-            const power = state.gravityPower;
-            let msg = "";
-
-            if (GameState.phase === 'SEARCHING') {
-                msg = "SCANNING SECTOR FOR NEW STELLAR MASS...";
-                textEl.style.color = "#00d2ff";
-            } else if (GameState.stability < 0.3) {
-                msg = "WARNING: GRAVITATIONAL COLLAPSE IMMINENT";
-                textEl.style.color = "#ff0000";
-            } else if (power < 0.1) {
-                const idleMsgs = ["MONITORING STELLAR WINDS...", "EVENT HORIZON STABLE", "AWAITING INPUT...", "GRAVITATIONAL WAVES: NOMINAL"];
-                msg = idleMsgs[Math.floor((now / 3000) % idleMsgs.length)];
-                textEl.style.color = "rgba(0, 255, 255, 0.8)";
-            } else if (power < 0.6) {
-                 const activeMsgs = ["WARNING: ROCHE LOBE OVERFLOW DETECTED", "ACCRETION RATE INCREASING", "STELLAR MASS TRANSFER ACTIVE", "GRAVITY WELL DESTABILIZING"];
-                msg = activeMsgs[Math.floor((now / 1500) % activeMsgs.length)];
-                textEl.style.color = "#ffaa00";
-            } else {
-                const critMsgs = ["CRITICAL: RELATIVISTIC JET IGNITION", "SINGULARITY EXPOSED", "TIME DILATION: 800%", "SYSTEM COLLAPSE IMMINENT"];
-                msg = critMsgs[Math.floor((now / 500) % critMsgs.length)];
-                textEl.style.color = "#ff0055";
-            }
-
-            if (textEl.innerText !== msg) {
-                textEl.innerText = msg;
-                lastNarrativeUpdate = now;
-            }
-        }
-
-        // --- 2. ENGINE ---
+        // THREE.JS INIT
         function initThree() {
             scene = new THREE.Scene();
             scene.fog = new THREE.FogExp2(0x020205, 0.002);
@@ -380,553 +264,6 @@
             });
         }
 
-        // --- 3. ENVIRONMENT ---
-        function createSurroundings() {
-            nebulaGroup = new THREE.Group();
-            scene.add(nebulaGroup);
-            
-            // Procedural nebula generation for resets
-            generateNebulaClouds();
-
-            const dustGeo = new THREE.BufferGeometry();
-            const dPos = [];
-            for(let i=0; i<600; i++) dPos.push((Math.random()-0.5)*120, (Math.random()-0.5)*60, (Math.random()-0.5)*120);
-            dustGeo.setAttribute('position', new THREE.Float32BufferAttribute(dPos, 3));
-            const dustMat = new THREE.PointsMaterial({ color: 0xaaddff, size: 0.3, transparent: true, opacity: 0.4, blending: THREE.AdditiveBlending });
-            dustSystem = new THREE.Points(dustGeo, dustMat);
-            scene.add(dustSystem);
-
-            const pointTex = createPointTexture();
-            const starGeo = new THREE.BufferGeometry();
-            const sPos = [];
-            for(let i=0; i<4000; i++) {
-                const r = 200 + Math.random()*200;
-                const theta = Math.random() * Math.PI * 2;
-                const phi = Math.acos(2 * Math.random() - 1);
-                sPos.push(r * Math.sin(phi) * Math.cos(theta), r * Math.sin(phi) * Math.sin(theta), r * Math.cos(phi));
-            }
-            starGeo.setAttribute('position', new THREE.Float32BufferAttribute(sPos, 3));
-            const stars = new THREE.Points(starGeo, new THREE.PointsMaterial({color: 0xffffff, size: 0.8, transparent: true, opacity: 0.8, map: pointTex, blending: THREE.AdditiveBlending, depthWrite: false}));
-            scene.add(stars);
-        }
-
-        // PART 2 GAME SYSTEM: Procedural Nebula
-        function generateNebulaClouds(seedColor = null) {
-            // Clear old clouds if any
-            while(nebulaGroup.children.length > 0) { 
-                nebulaGroup.remove(nebulaGroup.children[0]); 
-            }
-
-            const cloudTex = createCloudTexture();
-            // Colors shift based on game phase or random
-            const baseColors = seedColor ? [seedColor] : [0x110033, 0x001133, 0x220011];
-            // If big bang happened, use brighter vivid colors
-            const vividColors = [0x5500ff, 0xff0055, 0x00aaff, 0xffaa00];
-            const palette = seedColor ? vividColors : baseColors;
-
-            for(let i=0; i<20; i++) {
-                const mat = new THREE.SpriteMaterial({
-                    map: cloudTex, color: palette[Math.floor(Math.random()*palette.length)],
-                    transparent: true, opacity: 0.15, blending: THREE.AdditiveBlending
-                });
-                const sprite = new THREE.Sprite(mat);
-                const r = 150 + Math.random() * 100;
-                const theta = Math.random() * Math.PI * 2;
-                const phi = Math.acos(2 * Math.random() - 1);
-                sprite.position.set(r * Math.sin(phi) * Math.cos(theta), r * Math.sin(phi) * Math.sin(theta), r * Math.cos(phi));
-                sprite.scale.set(100, 100, 1);
-                nebulaGroup.add(sprite);
-            }
-        }
-
-        // --- 4. SPACE OBJECTS ---
-        function createBlackHole() {
-            blackHoleGroup = new THREE.Group();
-            scene.add(blackHoleGroup);
-
-            blackHoleGroup.add(new THREE.Mesh(new THREE.SphereGeometry(3.5, 32, 32), new THREE.MeshBasicMaterial({ color: 0x000000 })));
-
-            const ring = new THREE.Mesh(new THREE.RingGeometry(3.55, 3.7, 64), new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide, blending: THREE.AdditiveBlending }));
-            ring.lookAt(camera.position);
-            blackHoleGroup.add(ring);
-            blackHoleGroup.userData.halo = ring;
-
-            const diskGeo = new THREE.BufferGeometry();
-            const dPos = [], dCol = [];
-            const cIn = new THREE.Color(0xffaa00), cOut = new THREE.Color(0xff3300);
-
-            for(let i=0; i<8000; i++) {
-                const r = 4 + Math.random() * 20;
-                const ang = Math.random() * Math.PI * 2;
-                const spiral = r * 0.4;
-                dPos.push(Math.cos(ang + spiral) * r, (Math.random()-0.5) * 0.3, Math.sin(ang + spiral) * r);
-                const mix = Math.pow((r-4)/20, 2);
-                const c = cIn.clone().lerp(cOut, mix);
-                dCol.push(c.r, c.g, c.b);
-            }
-            diskGeo.setAttribute('position', new THREE.Float32BufferAttribute(dPos, 3));
-            diskGeo.setAttribute('color', new THREE.Float32BufferAttribute(dCol, 3));
-            accretionDisk = new THREE.Points(diskGeo, new THREE.PointsMaterial({size: 0.35, vertexColors: true, map: createPointTexture(), blending: THREE.AdditiveBlending, depthWrite: false, transparent: true, opacity: 0.9}));
-            scene.add(accretionDisk);
-
-            const lensMat = new THREE.MeshBasicMaterial({ map: createStreakTexture(), color: 0xffaa00, transparent: true, opacity: 0.15, side: THREE.DoubleSide, blending: THREE.AdditiveBlending });
-            lensingRing = new THREE.Mesh(new THREE.RingGeometry(4.0, 11, 64, 1, 0, Math.PI), lensMat);
-            lensingRing.position.y = 0.5;
-            scene.add(lensingRing);
-            const lensBot = lensingRing.clone(); lensBot.rotation.z = Math.PI; scene.add(lensBot);
-            blackHoleGroup.userData.lensTop = lensingRing; blackHoleGroup.userData.lensBot = lensBot;
-        }
-
-        function createCompanionStar() {
-            const geo = new THREE.SphereGeometry(6, 32, 32);
-            const mat = new THREE.MeshBasicMaterial({ color: 0xaaccff });
-            companionStar = new THREE.Mesh(geo, mat);
-            companionStar.position.copy(CFG.starPos);
-            scene.add(companionStar);
-
-            const glowTex = createCloudTexture();
-            const glowMat = new THREE.SpriteMaterial({ map: glowTex, color: 0x0066ff, blending: THREE.AdditiveBlending, transparent: true, opacity: 0.6 });
-            const glow = new THREE.Sprite(glowMat);
-            glow.scale.set(30, 30, 1);
-            companionStar.add(glow);
-            companionStar.userData.glow = glow;
-        }
-
-        function createFeedingStream() {
-            const count = CFG.streamCount;
-            const geo = new THREE.BufferGeometry();
-            const pos = new Float32Array(count * 3);
-            const col = new Float32Array(count * 3);
-            const start = CFG.starPos;
-
-            for(let i=0; i<count; i++) {
-                const t = Math.random();
-                pos[i*3] = start.x * (1-t);
-                pos[i*3+1] = (Math.random()-0.5) * 5 * t; 
-                pos[i*3+2] = start.z * (1-t);
-                col[i*3] = 1; col[i*3+1] = 1; col[i*3+2] = 1; 
-            }
-            geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
-            geo.setAttribute('color', new THREE.BufferAttribute(col, 3));
-
-            const mat = new THREE.PointsMaterial({
-                size: 0.4, vertexColors: true, map: createPointTexture(),
-                blending: THREE.AdditiveBlending, depthWrite: false, transparent: true, opacity: 0.6
-            });
-
-            feedingStream = new THREE.Points(geo, mat);
-            const vels = [];
-            for(let i=0; i<count; i++) vels.push(Math.random() * 0.05 + 0.02);
-            feedingStream.userData = { vels: vels };
-            scene.add(feedingStream);
-        }
-
-        function createJets() {
-            const count = CFG.jetCount;
-            const geo = new THREE.BufferGeometry();
-            const pos = new Float32Array(count * 3);
-            const col = new Float32Array(count * 3);
-            const vels = new Float32Array(count);
-            
-            const cCore = new THREE.Color(0xffffff);
-            const cEdge = new THREE.Color(0x8800ff); 
-
-            for(let i=0; i<count; i++) {
-                const i3 = i*3;
-                const r = Math.random() * 1.5;
-                const ang = Math.random() * Math.PI * 2;
-                pos[i3] = Math.cos(ang) * r;
-                pos[i3+1] = (Math.random()-0.5) * 10;
-                pos[i3+2] = Math.sin(ang) * r;
-                
-                vels[i] = 1.5 + Math.random() * 2.0;
-
-                const c = cCore.clone().lerp(cEdge, r/1.5);
-                col[i3] = c.r; col[i3+1] = c.g; col[i3+2] = c.b;
-            }
-            geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
-            geo.setAttribute('color', new THREE.BufferAttribute(col, 3));
-
-            const mat = new THREE.PointsMaterial({
-                size: 0.6, vertexColors: true, map: createPointTexture(),
-                blending: THREE.AdditiveBlending, depthWrite: false, transparent: true, opacity: 0
-            });
-            
-            jetParticles = new THREE.Points(geo, mat);
-            jetParticles.userData = { vels: vels };
-            scene.add(jetParticles);
-        }
-
-        // --- 5. AI ---
-        async function initAI() {
-            const video = document.getElementById('video-input');
-            const hands = new Hands({locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`});
-            hands.setOptions({maxNumHands: 2, modelComplexity: 1, minDetectionConfidence: 0.5});
-            
-            hands.onResults(results => {
-                const status = document.getElementById('status-text');
-                
-                if (results.multiHandLandmarks && results.multiHandLandmarks.length === 2) {
-                    const h1 = results.multiHandLandmarks[0][8];
-                    const h2 = results.multiHandLandmarks[1][8];
-                    const dist = Math.hypot(h1.x - h2.x, h1.y - h2.y);
-                    
-                    if(dist < 0.25) {
-                        state.targetPower = 1.0;
-                        status.innerText = "CONSUMING STAR - JET FIRE";
-                        status.className = "status-text alert-mode";
-                    } else {
-                        state.targetPower = 0.0;
-                        status.innerText = "ALIGN HANDS";
-                        status.className = "status-text";
-                    }
-
-                } else if (results.multiHandLandmarks && results.multiHandLandmarks.length === 1) {
-                    state.targetPower = 0.0;
-                    const lm = results.multiHandLandmarks[0];
-                    const pinch = Math.hypot(lm[4].x - lm[8].x, lm[4].y - lm[8].y);
-                    
-                    const targetZ = pinch < 0.05 ? 20 : 65;
-                    state.zoom += (targetZ - state.zoom) * 0.1;
-
-                    state.rotY = (lm[9].x - 0.5) * 2;
-                    state.rotX = (lm[9].y - 0.5) * 2;
-                    
-                    status.innerText = "NAVIGATION";
-                    status.className = "status-text active-mode";
-                } else {
-                    state.targetPower = 0.0;
-                    status.innerText = "AUTO-PILOT";
-                    status.className = "status-text";
-                }
-            });
-
-            const cam = new Camera(video, {onFrame: async()=>{await hands.send({image:video})}, width:480, height:360});
-            await cam.start();
-        }
-
-        // --- 6. ANIMATION & GAME LOOP ---
-        function animate() {
-            requestAnimationFrame(animate);
-            time += 0.01;
-
-            updateNarrative();
-            updateAudio();
-
-            // PART 2 GAME SYSTEM: Update Game Logic each frame
-            updateGameLogic();
-
-            // Smooth Power Transition
-            state.gravityPower += (state.targetPower - state.gravityPower) * 0.1;
-
-            const timeScale = 1.0 + (state.gravityPower * 3.0);
-            
-            nebulaGroup.rotation.y = time * 0.005 / timeScale;
-            dustSystem.rotation.y = -time * 0.01 / timeScale;
-
-            scene.rotation.y += (state.rotY - scene.rotation.y) * 0.05;
-            scene.rotation.x += (state.rotX - scene.rotation.x) * 0.05;
-            
-            if (state.gravityPower < 0.1) {
-                scene.rotation.y += 0.0005; 
-            }
-
-            camera.position.z = state.zoom;
-            
-            // Instability Shake (Game Mechanic: increased shake when stability is low)
-            const stabilityFactor = 1.0 - GameState.stability;
-            if(state.gravityPower > 0.01 || stabilityFactor > 0.1) {
-                const shake = (state.gravityPower * 0.4) + (stabilityFactor * 0.6);
-                camera.position.x = (Math.random()-0.5)*shake;
-                camera.position.y = 10 + (Math.random()-0.5)*shake;
-            } else {
-                camera.position.x += (0 - camera.position.x) * 0.1;
-                camera.position.y += (10 - camera.position.y) * 0.1;
-            }
-            camera.lookAt(0,0,0);
-
-            blackHoleGroup.children[1].lookAt(camera.position); 
-            if(blackHoleGroup.userData.lensTop) {
-                blackHoleGroup.userData.lensTop.lookAt(camera.position);
-                blackHoleGroup.userData.lensBot.lookAt(camera.position);
-                blackHoleGroup.userData.lensTop.rotation.z=0; blackHoleGroup.userData.lensBot.rotation.z=Math.PI;
-            }
-
-            accretionDisk.material.opacity = 0.9 + (state.gravityPower * 0.1); 
-            accretionDisk.material.size = 0.35 + (state.gravityPower * 0.1);
-            
-            // --- STAR PHYSICS & CONSUMPTION ---
-            // If in SEARCHING or BIG_BANG phase, hide star locally
-            if (GameState.phase === 'SEARCHING' || GameState.phase === 'BIG_BANG') {
-                companionStar.scale.lerp(new THREE.Vector3(0,0,0), 0.1);
-                feedingStream.material.opacity = 0;
-            } else {
-                // Determine visuals based on health
-                const baseScale = GameState.isMassiveStar ? 1.5 : 1.0;
-                
-                if(state.gravityPower > 0.1) {
-                    const shake = state.gravityPower * 0.5 * (2 - GameState.stability); // Instability increases shake
-                    companionStar.position.set(
-                        CFG.starPos.x + (Math.random()-0.5)*shake,
-                        CFG.starPos.y + (Math.random()-0.5)*shake,
-                        CFG.starPos.z + (Math.random()-0.5)*shake
-                    );
-                    const healthScale = GameState.starHealth * baseScale;
-                    const shrink = 1 - (state.gravityPower * 0.1);
-                    companionStar.scale.set(healthScale * shrink, healthScale * shrink, healthScale * shrink);
-                } else {
-                    companionStar.position.lerp(CFG.starPos, 0.1);
-                    const targetS = GameState.starHealth * baseScale;
-                    companionStar.scale.lerp(new THREE.Vector3(targetS, targetS, targetS), 0.1);
-                }
-                
-                // Color shift on star based on health (Red shift as it dies)
-                if (GameState.starHealth < 0.3) {
-                    companionStar.material.color.lerp(new THREE.Color(0xff0000), 0.05);
-                } else {
-                    companionStar.material.color.lerp(GameState.starColor, 0.05);
-                }
-                companionStar.userData.glow.material.color.copy(companionStar.material.color);
-            }
-
-            // Feeding Stream Logic
-            const sPos = feedingStream.geometry.attributes.position.array;
-            const sVel = feedingStream.userData.vels;
-            const origin = companionStar.position;
-            const count = sPos.length/3;
-            
-            const speedMult = 1 + (state.gravityPower * 4);
-            const turbulence = (1.0 - GameState.stability) * 2.0; // PART 2: Instability visual
-
-            for(let i=0; i<count; i++) {
-                const i3 = i*3;
-                let x = sPos[i3], y = sPos[i3+1], z = sPos[i3+2];
-                const d = Math.sqrt(x*x + z*z);
-                const gravity = (50/(d+0.1)) * 0.01 * speedMult;
-                const speed = (sVel[i] + gravity) * speedMult;
-                const ang = Math.atan2(z, x) - speed*0.2; 
-                const r = d - speed;
-                
-                const wiggle = state.gravityPower * 0.5 + turbulence; 
-
-                if(r < 3.5) { 
-                    if(GameState.phase === 'PLAYING') {
-                        sPos[i3] = origin.x + (Math.random()-0.5)*2;
-                        sPos[i3+1] = origin.y + (Math.random()-0.5)*2;
-                        sPos[i3+2] = origin.z + (Math.random()-0.5)*2;
-                    } else {
-                        // Hide particle inside hole
-                        sPos[i3] = 0; sPos[i3+1]=0; sPos[i3+2]=0;
-                    }
-                } else {
-                    sPos[i3] = Math.cos(ang)*r + (Math.random()-0.5)*wiggle;
-                    sPos[i3+1] = y * 0.95 + (Math.random()-0.5)*wiggle; 
-                    sPos[i3+2] = Math.sin(ang)*r + (Math.random()-0.5)*wiggle;
-                }
-            }
-            feedingStream.geometry.attributes.position.needsUpdate = true;
-            
-            if(GameState.phase === 'PLAYING') {
-                feedingStream.material.opacity = 0.3 + (state.gravityPower * 0.7);
-                feedingStream.material.size = 0.4 + (state.gravityPower * 0.2);
-            }
-
-            // Jet Logic
-            jetParticles.material.opacity = state.gravityPower;
-            jetParticles.material.size = 0.6 + (state.gravityPower * 0.4);
-
-            if(state.gravityPower > 0.01) {
-                const jPos = jetParticles.geometry.attributes.position.array;
-                const jVel = jetParticles.userData.vels;
-                // Instability causes jets to widen/spray
-                const spray = (1.0 - GameState.stability) * 5.0; 
-
-                for(let i=0; i<CFG.jetCount; i++) {
-                    const i3 = i*3;
-                    let x = jPos[i3], y = jPos[i3+1], z = jPos[i3+2];
-                    if(i%2==0) y += jVel[i]; else y -= jVel[i];
-                    
-                    if(spray > 0.1) {
-                        x += (Math.random()-0.5) * spray * 0.1;
-                        z += (Math.random()-0.5) * spray * 0.1;
-                    }
-
-                    if(Math.abs(y) > 80) {
-                        y = (Math.random()-0.5)*2; 
-                        // reset x/z
-                        const r = Math.random()*1.5; const a = Math.random()*6.28;
-                        x = Math.cos(a)*r; z = Math.sin(a)*r;
-                    }
-                    jPos[i3] = x; jPos[i3+1] = y; jPos[i3+2] = z;
-                }
-                jetParticles.geometry.attributes.position.needsUpdate = true;
-            }
-
-            accretionDisk.rotation.y = -time * 0.3 * timeScale;
-
-            composer.render();
-        }
-
-        // --- PART 2: GAME LOGIC SYSTEM ---
-        function updateGameLogic() {
-            if (GameState.phase !== 'PLAYING') return;
-
-            // 1. Consumption
-            if (state.gravityPower > 0.1) {
-                // Damage based on power
-                const damage = state.gravityPower * 0.002; 
-                GameState.starHealth -= damage;
-                
-                // Score based on damage
-                GameState.massAbsorbed += damage * 100;
-                
-                // Stability Penalty for high gravity
-                if (state.gravityPower > 0.8) {
-                    GameState.stability -= 0.005;
-                } else {
-                    GameState.stability = Math.min(1.0, GameState.stability + 0.002); // Recover
-                }
-            } else {
-                // Recover stability when idle
-                GameState.stability = Math.min(1.0, GameState.stability + 0.01);
-            }
-            
-            // Floor stability
-            GameState.stability = Math.max(0.0, GameState.stability);
-
-            // 2. Win Condition: Star Consumed
-            if (GameState.starHealth <= 0) {
-                GameState.starHealth = 0;
-                handleStarConsumed();
-            }
-
-            // 3. Fail Condition: Instability (Loss of control visual only for now)
-            if (GameState.stability < 0.1) {
-                // Force camera rotation drift as penalty
-                state.rotX += (Math.random()-0.5)*0.1;
-                state.rotY += (Math.random()-0.5)*0.1;
-            }
-
-            updateHUD();
-        }
-
-        function updateHUD() {
-            document.getElementById('star-health-val').innerText = Math.floor(GameState.starHealth * 100) + "%";
-            document.getElementById('star-health-bar').style.width = (GameState.starHealth * 100) + "%";
-            
-            document.getElementById('stability-val').innerText = Math.floor(GameState.stability * 100) + "%";
-            const stabBar = document.getElementById('stability-fill');
-            stabBar.style.width = (GameState.stability * 100) + "%";
-            
-            // Color code stability bar
-            if(GameState.stability < 0.3) stabBar.style.backgroundColor = "#ff0000";
-            else if(GameState.stability < 0.6) stabBar.style.backgroundColor = "#ffaa00";
-            else stabBar.style.backgroundColor = "#00ff88";
-
-            document.getElementById('score-val').innerText = Math.floor(GameState.massAbsorbed).toLocaleString() + " M☉";
-            document.getElementById('massive-count-val').innerText = GameState.massiveStarsConsumed + "/3";
-        }
-
-        function updateHistoryUI() {
-            const list = document.getElementById('history-list');
-            list.style.display = 'block';
-            list.innerHTML = "";
-            GameState.galaxyHistory.forEach(name => {
-                const div = document.createElement('div');
-                div.className = 'history-item';
-                div.innerText = "UNIVERSE: " + name;
-                list.appendChild(div);
-            });
-        }
-
-        function handleStarConsumed() {
-            GameState.phase = 'SEARCHING';
-            if (GameState.isMassiveStar) GameState.massiveStarsConsumed++;
-            
-            updateHUD();
-
-            if (GameState.massiveStarsConsumed >= 3) {
-                triggerBigBang();
-            } else {
-                setTimeout(triggerGalaxyTransition, 2000);
-            }
-        }
-
-        function triggerGalaxyTransition() {
-            // Visual effect of moving through space
-            const travelDuration = 3000;
-            const startRot = scene.rotation.y;
-            let elapsed = 0;
-
-            const interval = setInterval(() => {
-                elapsed += 20;
-                scene.rotation.y += 0.1; // Fast spin
-                scene.position.z += 1; // Move forward illusion
-                
-                if (elapsed >= travelDuration) {
-                    clearInterval(interval);
-                    scene.position.z = 0;
-                    spawnNewStar();
-                    generateNebulaClouds(); // New environment
-                    GameState.phase = 'PLAYING';
-                }
-            }, 20);
-        }
-
-        function spawnNewStar() {
-            GameState.starHealth = 1.0;
-            GameState.stability = 1.0;
-            
-            // Randomly determine type
-            const isMassive = Math.random() > 0.6;
-            GameState.isMassiveStar = isMassive;
-            
-            // Setup visual properties
-            GameState.starColor = isMassive ? new THREE.Color(0xffaa00) : new THREE.Color(0xaaccff); // Orange (Massive) vs Blue (Normal)
-            if (isMassive) GameState.starColor = new THREE.Color(0xff4400); // Supergiant red
-
-            // Reset mesh
-            companionStar.material.color.copy(GameState.starColor);
-            companionStar.userData.glow.material.color.copy(GameState.starColor);
-            
-            // Reposition randomly in orbit
-            const angle = Math.random() * Math.PI * 2;
-            CFG.starPos.set(Math.cos(angle)*35, (Math.random()-0.5)*10, Math.sin(angle)*35);
-            companionStar.position.copy(CFG.starPos);
-        }
-
-        function triggerBigBang() {
-            GameState.phase = 'BIG_BANG';
-            
-            // 1. Audio Explosion
-            if(audioInitialized) {
-                const bangOsc = audioCtx.createOscillator();
-                bangOsc.type = 'sawtooth';
-                bangOsc.frequency.setValueAtTime(50, audioCtx.currentTime);
-                bangOsc.frequency.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 3);
-                const bangGain = audioCtx.createGain();
-                bangGain.gain.setValueAtTime(1, audioCtx.currentTime);
-                bangGain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 3);
-                bangOsc.connect(bangGain).connect(audioCtx.destination);
-                bangOsc.start();
-            }
-
-            // 2. Visual Whiteout
-            const overlay = document.getElementById('big-bang-overlay');
-            overlay.style.opacity = 1;
-            
-            setTimeout(() => {
-                // 3. Reset Universe behind curtain
-                generateNebulaClouds(0xffffff); // Bright clouds
-                
-                // Show naming modal
-                document.getElementById('naming-modal').style.display = 'block';
-                GameState.phase = 'NAMING';
-                
-            }, 1500);
-        }
-
-        // --- ASSETS ---
         function createPointTexture() {
             const c = document.createElement('canvas'); c.width=64; c.height=64;
             const ctx = c.getContext('2d');
@@ -954,6 +291,611 @@
             ctx.fillStyle=g; ctx.fillRect(0,0,128,128);
             return new THREE.CanvasTexture(c);
         }
+
+        function setupSceneObjects() {
+            // 1. NEBULA & DUST
+            nebulaGroup = new THREE.Group();
+            scene.add(nebulaGroup);
+
+            const dustGeo = new THREE.BufferGeometry();
+            const dPos = [];
+            for(let i=0; i<600; i++) dPos.push((Math.random()-0.5)*120, (Math.random()-0.5)*60, (Math.random()-0.5)*120);
+            dustGeo.setAttribute('position', new THREE.Float32BufferAttribute(dPos, 3));
+            dustSystem = new THREE.Points(dustGeo, new THREE.PointsMaterial({ color: 0xaaddff, size: 0.3, transparent: true, opacity: 0.4, blending: THREE.AdditiveBlending }));
+            scene.add(dustSystem);
+
+            // 2. BLACK HOLE
+            blackHoleGroup = new THREE.Group();
+            scene.add(blackHoleGroup);
+            blackHoleGroup.add(new THREE.Mesh(new THREE.SphereGeometry(3.5, 32, 32), new THREE.MeshBasicMaterial({ color: 0x000000 })));
+            
+            const ring = new THREE.Mesh(new THREE.RingGeometry(3.55, 3.7, 64), new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide, blending: THREE.AdditiveBlending }));
+            blackHoleGroup.add(ring);
+            blackHoleGroup.userData.halo = ring;
+
+            // Accretion Disk
+            const diskGeo = new THREE.BufferGeometry();
+            const diskPos = [], diskCol = [];
+            const cIn = new THREE.Color(0xffaa00), cOut = new THREE.Color(0xff3300);
+            for(let i=0; i<8000; i++) {
+                const r = 4 + Math.random() * 20;
+                const ang = Math.random() * Math.PI * 2;
+                const spiral = r * 0.4;
+                diskPos.push(Math.cos(ang+spiral)*r, (Math.random()-0.5)*0.3, Math.sin(ang+spiral)*r);
+                const mix = Math.pow((r-4)/20, 2);
+                const c = cIn.clone().lerp(cOut, mix);
+                diskCol.push(c.r, c.g, c.b);
+            }
+            diskGeo.setAttribute('position', new THREE.Float32BufferAttribute(diskPos, 3));
+            diskGeo.setAttribute('color', new THREE.Float32BufferAttribute(diskCol, 3));
+            accretionDisk = new THREE.Points(diskGeo, new THREE.PointsMaterial({size: 0.35, vertexColors: true, map: createPointTexture(), blending: THREE.AdditiveBlending, depthWrite: false, transparent: true, opacity: 0.9}));
+            scene.add(accretionDisk);
+
+            // Lensing
+            const lensMat = new THREE.MeshBasicMaterial({ map: createStreakTexture(), color: 0xffaa00, transparent: true, opacity: 0.15, side: THREE.DoubleSide, blending: THREE.AdditiveBlending });
+            lensingRing = new THREE.Mesh(new THREE.RingGeometry(4.0, 11, 64, 1, 0, Math.PI), lensMat);
+            lensingRing.position.y = 0.5;
+            scene.add(lensingRing);
+            const lensBot = lensingRing.clone(); lensBot.rotation.z = Math.PI; scene.add(lensBot);
+            blackHoleGroup.userData.lensTop = lensingRing; blackHoleGroup.userData.lensBot = lensBot;
+
+            // 3. COMPANION STARS (Dual system for rebirth)
+            const starGeo = new THREE.SphereGeometry(6, 32, 32);
+            
+            // Star 1 (Main)
+            companionStar = new THREE.Mesh(starGeo, new THREE.MeshBasicMaterial({ color: 0xaaccff }));
+            companionStar.position.copy(VISUALS.starPos);
+            scene.add(companionStar);
+            const glow1 = new THREE.Sprite(new THREE.SpriteMaterial({ map: createCloudTexture(), color: 0x0066ff, blending: THREE.AdditiveBlending, transparent: true, opacity: 0.6 }));
+            glow1.scale.set(30,30,1);
+            companionStar.add(glow1);
+            companionStar.userData.glow = glow1;
+
+            // COSMIC REBIRTH SYSTEM: Star 2 (Secondary)
+            companionStar2 = new THREE.Mesh(starGeo, new THREE.MeshBasicMaterial({ color: 0xaa00ff }));
+            companionStar2.position.set(-35, 2, 5);
+            companionStar2.visible = false; // Hidden initially
+            scene.add(companionStar2);
+            const glow2 = new THREE.Sprite(new THREE.SpriteMaterial({ map: createCloudTexture(), color: 0x8800ff, blending: THREE.AdditiveBlending, transparent: true, opacity: 0.6 }));
+            glow2.scale.set(30,30,1);
+            companionStar2.add(glow2);
+            companionStar2.userData.glow = glow2;
+
+            // 4. FEEDING STREAMS
+            const streamMat = new THREE.PointsMaterial({size: 0.4, vertexColors: true, map: createPointTexture(), blending: THREE.AdditiveBlending, depthWrite: false, transparent: true, opacity: 0.6});
+            
+            // Stream 1
+            const sGeo1 = new THREE.BufferGeometry();
+            const sPos1 = [], sCol1 = [];
+            for(let i=0; i<VISUALS.streamCount; i++) { sPos1.push(0,0,0); sCol1.push(1,1,1); }
+            sGeo1.setAttribute('position', new THREE.Float32BufferAttribute(sPos1, 3));
+            sGeo1.setAttribute('color', new THREE.Float32BufferAttribute(sCol1, 3));
+            feedingStream = new THREE.Points(sGeo1, streamMat.clone());
+            feedingStream.userData = { vels: Array(VISUALS.streamCount).fill(0).map(()=>Math.random()*0.05+0.02) };
+            scene.add(feedingStream);
+
+            // COSMIC REBIRTH SYSTEM: Stream 2
+            const sGeo2 = new THREE.BufferGeometry();
+            sGeo2.setAttribute('position', new THREE.Float32BufferAttribute(sPos1, 3));
+            sGeo2.setAttribute('color', new THREE.Float32BufferAttribute(sCol1, 3));
+            feedingStream2 = new THREE.Points(sGeo2, streamMat.clone());
+            feedingStream2.userData = { vels: Array(VISUALS.streamCount).fill(0).map(()=>Math.random()*0.05+0.02) };
+            feedingStream2.visible = false;
+            scene.add(feedingStream2);
+
+            // 5. JETS
+            const jetGeo = new THREE.BufferGeometry();
+            const jPos = [], jCol = [], jVels = [];
+            const cCore = new THREE.Color(0xffffff), cEdge = new THREE.Color(0x8800ff);
+            for(let i=0; i<VISUALS.jetCount; i++) {
+                const r = Math.random()*1.5;
+                const ang = Math.random()*Math.PI*2;
+                jPos.push(Math.cos(ang)*r, (Math.random()-0.5)*10, Math.sin(ang)*r);
+                const c = cCore.clone().lerp(cEdge, r/1.5);
+                jCol.push(c.r, c.g, c.b);
+                jVels.push(1.5 + Math.random()*2.0);
+            }
+            jetGeo.setAttribute('position', new THREE.Float32BufferAttribute(jPos, 3));
+            jetGeo.setAttribute('color', new THREE.Float32BufferAttribute(jCol, 3));
+            jetParticles = new THREE.Points(jetGeo, new THREE.PointsMaterial({size: 0.6, vertexColors: true, map: createPointTexture(), blending: THREE.AdditiveBlending, depthWrite: false, transparent: true, opacity: 0}));
+            jetParticles.userData = { vels: jVels };
+            scene.add(jetParticles);
+        }
+
+        async function initAI() {
+            const video = document.getElementById('video-input');
+            const hands = new Hands({locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`});
+            hands.setOptions({maxNumHands: 2, modelComplexity: 1, minDetectionConfidence: 0.5});
+            
+            hands.onResults(results => {
+                if (results.multiHandLandmarks && results.multiHandLandmarks.length === 2) {
+                    const h1 = results.multiHandLandmarks[0][8];
+                    const h2 = results.multiHandLandmarks[1][8];
+                    const dist = Math.hypot(h1.x - h2.x, h1.y - h2.y);
+                    inputState.targetPower = (dist < 0.25) ? 1.0 : 0.0;
+                } else if (results.multiHandLandmarks && results.multiHandLandmarks.length === 1) {
+                    inputState.targetPower = 0.0;
+                    const lm = results.multiHandLandmarks[0];
+                    const pinch = Math.hypot(lm[4].x - lm[8].x, lm[4].y - lm[8].y);
+                    const targetZ = pinch < 0.05 ? 20 : 65;
+                    inputState.zoom += (targetZ - inputState.zoom) * 0.1;
+                    inputState.rotY = (lm[9].x - 0.5) * 2;
+                    inputState.rotX = (lm[9].y - 0.5) * 2;
+                } else {
+                    inputState.targetPower = 0.0;
+                }
+            });
+
+            const cam = new Camera(video, {onFrame: async()=>{await hands.send({image:video})}, width:480, height:360});
+            await cam.start();
+        }
+
+        /* -------------------------------------------------------------------------
+           PART 2: UNIVERSE ARCHITECTURE
+           ------------------------------------------------------------------------- */
+        
+        const Universe = {
+            state: 'INIT',
+            history: [],
+            currentGalaxyName: "ORIGIN",
+            age: 0,
+            
+            // COSMIC REBIRTH SYSTEM: Extended Phase Control
+            bigBangStartTime: 0,
+            bigBangPhase: null, // DESTRUCTION, NEBULA_FORM, PROTO_STARS, LONE_BH, BINARY_CONSUME, NAMING
+
+            setState(newState) {
+                console.log(`Universe State: ${this.state} -> ${newState}`);
+                this.state = newState;
+                updateHUDDisplay(); 
+            },
+
+            triggerBigBang() {
+                this.setState('BIG_BANG');
+                this.bigBangPhase = 'FLASH';
+                this.bigBangStartTime = Date.now();
+                
+                if(audioInitialized) {
+                    droneOsc.frequency.exponentialRampToValueAtTime(10, audioCtx.currentTime + 3);
+                    jetGain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 1);
+                }
+            },
+
+            // COSMIC REBIRTH SYSTEM: Multi-Phase Logic
+            updateRebirthSequence() {
+                if (this.state !== 'BIG_BANG') return;
+
+                const elapsed = Date.now() - this.bigBangStartTime;
+                const overlay = document.getElementById('whiteout-overlay');
+                const textEl = document.getElementById('narrative-display');
+
+                // PHASE 1: FLASH (0 - 500ms)
+                if (this.bigBangPhase === 'FLASH') {
+                    overlay.style.backgroundColor = 'white';
+                    overlay.style.opacity = 1.0;
+                    if(elapsed > 300) {
+                        this.bigBangPhase = 'DESTRUCTION';
+                        // Audio Bang
+                        if(audioInitialized) {
+                            const bangOsc = audioCtx.createOscillator(); bangOsc.type = 'sawtooth';
+                            bangOsc.frequency.setValueAtTime(200, audioCtx.currentTime);
+                            bangOsc.frequency.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 4);
+                            const bangGain = audioCtx.createGain();
+                            bangGain.gain.setValueAtTime(1, audioCtx.currentTime);
+                            bangGain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 4);
+                            bangOsc.connect(bangGain).connect(audioCtx.destination); bangOsc.start();
+                        }
+                    }
+                }
+
+                // PHASE 2: DESTRUCTION (500ms - 3000ms) - "The Rip"
+                if (this.bigBangPhase === 'DESTRUCTION') {
+                    textEl.innerText = "GRAVITATIONAL SINGULARITY: CRITICAL RUPTURE";
+                    overlay.style.transition = 'opacity 2s ease-out';
+                    overlay.style.opacity = 0;
+
+                    // Explode outward
+                    const progress = (elapsed - 300) / 2700;
+                    nebulaGroup.scale.setScalar(1 + progress * 5); // Huge expansion
+                    dustSystem.scale.setScalar(1 + progress * 10);
+                    
+                    // Hide structured elements
+                    accretionDisk.material.opacity = Math.max(0, 1 - progress*3);
+                    jetParticles.material.opacity = 0;
+                    feedingStream.material.opacity = 0;
+                    companionStar.scale.setScalar(0);
+                    companionStar2.visible = false;
+
+                    // Naked Black Hole enlarges
+                    blackHoleGroup.scale.setScalar(1 + progress * 0.5);
+
+                    if (elapsed > 3000) {
+                        this.bigBangPhase = 'NEBULA_FORM';
+                        Galaxy.reset(); // Spawn new clouds hiddenly
+                        nebulaGroup.scale.setScalar(0.1); // Reset scale small
+                        // Randomize nebula colors for new universe
+                        Galaxy.evolveNebula();
+                    }
+                }
+
+                // PHASE 3: NEBULA_FORM (3000ms - 8000ms) - Slow Fade In
+                if (this.bigBangPhase === 'NEBULA_FORM') {
+                    textEl.innerText = "COOLING PHASE: NEBULA COALESCENCE";
+                    const localT = (elapsed - 3000) / 5000;
+                    
+                    // Fade in new clouds
+                    nebulaGroup.children.forEach(sprite => {
+                        sprite.material.opacity = localT * 0.15;
+                    });
+                    nebulaGroup.scale.setScalar(0.1 + localT * 0.9); // Grow to normal size
+                    nebulaGroup.rotation.y += 0.002;
+
+                    // Black hole waits
+                    blackHoleGroup.scale.lerp(new THREE.Vector3(1.2, 1.2, 1.2), 0.05);
+
+                    if (elapsed > 8000) {
+                        this.bigBangPhase = 'PROTO_STARS';
+                        // Setup dual stars
+                        companionStar.position.set(35, 2, -5); companionStar.scale.setScalar(0);
+                        companionStar2.visible = true; companionStar2.position.set(-35, -2, 5); companionStar2.scale.setScalar(0);
+                    }
+                }
+
+                // PHASE 4: PROTO_STARS (8000ms - 13000ms) - Spawn Dual System
+                if (this.bigBangPhase === 'PROTO_STARS') {
+                    textEl.innerText = "STELLAR NURSERY DETECTED";
+                    const localT = (elapsed - 8000) / 5000;
+                    
+                    // Grow stars
+                    const starSize = localT * 1.2;
+                    companionStar.scale.setScalar(starSize);
+                    companionStar2.scale.setScalar(starSize);
+                    
+                    // Orbit slightly
+                    const angle = localT * 0.5;
+                    companionStar.position.set(Math.cos(angle)*35, 2, Math.sin(angle)*35);
+                    companionStar2.position.set(-Math.cos(angle)*35, -2, -Math.sin(angle)*35);
+
+                    if (elapsed > 13000) {
+                        this.bigBangPhase = 'LONE_BH';
+                        // Flash name
+                        textEl.innerText = `SINGULARITY: ${this.currentGalaxyName}`;
+                        textEl.style.color = "#ffffff";
+                    }
+                }
+
+                // PHASE 5: LONE_BH (13000ms - 16000ms) - Quiet Observation
+                if (this.bigBangPhase === 'LONE_BH') {
+                    // Just drift
+                    nebulaGroup.rotation.y += 0.001;
+                    if (elapsed > 16000) {
+                        this.bigBangPhase = 'BINARY_CONSUME';
+                    }
+                }
+
+                // PHASE 6: BINARY_CONSUME (16000ms - 22000ms) - Reform Disk
+                if (this.bigBangPhase === 'BINARY_CONSUME') {
+                    textEl.innerText = "GRAVITATIONAL CAPTURE: DISK REFORMATION";
+                    textEl.style.color = "#ffaa00";
+                    const localT = (elapsed - 16000) / 6000;
+
+                    // Activate both streams
+                    feedingStream.material.opacity = localT * 0.5;
+                    feedingStream2.visible = true;
+                    feedingStream2.material.opacity = localT * 0.5;
+
+                    // Fade in disk and jets
+                    accretionDisk.material.opacity = localT;
+                    jetParticles.material.opacity = localT * 0.5;
+
+                    // Simulate flow from both stars
+                    updateFeedingStream(feedingStream, companionStar.position, 1.0);
+                    updateFeedingStream(feedingStream2, companionStar2.position, 1.0);
+
+                    if (elapsed > 22000) {
+                        this.bigBangPhase = 'NAMING';
+                        this.triggerRebirthUI();
+                    }
+                }
+            },
+
+            triggerRebirthUI() {
+                document.getElementById('naming-modal').style.display = 'flex';
+                if (audioInitialized) {
+                     droneOsc.frequency.setTargetAtTime(40, audioCtx.currentTime, 1);
+                }
+            },
+
+            finalizeRebirth(name) {
+                this.history.push(this.currentGalaxyName);
+                this.currentGalaxyName = name;
+                updateHistoryUI();
+                
+                StarSystem.spawn(); // Resets to single star gameplay
+                companionStar2.visible = false; // Hide second star
+                feedingStream2.visible = false;
+                
+                this.setState('STABLE');
+            }
+        };
+
+        const Galaxy = {
+            rotationSpeed: 0.001,
+            generation: 0,
+            init() { this.evolveNebula(); },
+            update() {
+                nebulaGroup.rotation.y += this.rotationSpeed;
+                dustSystem.rotation.y -= this.rotationSpeed * 2;
+                if (Universe.state === 'MIGRATION') {
+                    scene.position.z += 1.5; 
+                    nebulaGroup.rotation.y += 0.05; 
+                }
+            },
+            startMigration() {
+                Universe.setState('MIGRATION');
+                companionStar.scale.set(0,0,0);
+                setTimeout(() => {
+                    scene.position.z = 0;
+                    this.evolveNebula(); 
+                    StarSystem.spawn();
+                    Universe.setState('STABLE');
+                }, 2500);
+            },
+            evolveNebula() {
+                while(nebulaGroup.children.length > 0) { nebulaGroup.remove(nebulaGroup.children[0]); }
+                const cloudTex = createCloudTexture();
+                const palette = [new THREE.Color().setHSL(Math.random(), 0.8, 0.5), new THREE.Color().setHSL(Math.random(), 0.8, 0.2), new THREE.Color(0x110033)];
+                for(let i=0; i<20; i++) {
+                    const mat = new THREE.SpriteMaterial({ map: cloudTex, color: palette[i%3], transparent: true, opacity: 0.15, blending: THREE.AdditiveBlending });
+                    const sprite = new THREE.Sprite(mat);
+                    const r = 150 + Math.random() * 100;
+                    const theta = Math.random() * Math.PI * 2;
+                    const phi = Math.acos(2 * Math.random() - 1);
+                    sprite.position.set(r * Math.sin(phi) * Math.cos(theta), r * Math.sin(phi) * Math.sin(theta), r * Math.cos(phi));
+                    sprite.scale.set(100, 100, 1);
+                    nebulaGroup.add(sprite);
+                }
+            },
+            reset() {
+                this.generation++;
+                this.evolveNebula();
+                scene.position.set(0,0,0);
+            }
+        };
+
+        const StarSystem = {
+            active: false,
+            mass: 1.0, maxMass: 1.0, stability: 1.0, isMassive: false, absorbedTotal: 0, massiveConsumed: 0,
+            spawn() {
+                this.active = true;
+                this.mass = 1.0;
+                this.stability = 1.0;
+                this.isMassive = Math.random() > 0.6;
+                const color = this.isMassive ? new THREE.Color(0xff4400) : new THREE.Color(0xaaccff);
+                companionStar.material.color.copy(color);
+                companionStar.userData.glow.material.color.copy(color);
+                const angle = Math.random() * Math.PI * 2;
+                VISUALS.starPos.set(Math.cos(angle)*35, (Math.random()-0.5)*10, Math.sin(angle)*35);
+                companionStar.position.copy(VISUALS.starPos);
+                updateHUDDisplay();
+            },
+            update(power) {
+                if (!this.active || Universe.state === 'MIGRATION' || Universe.state === 'BIG_BANG') return;
+                if (power > 0.1) {
+                    Universe.setState('CONSUMING');
+                    const drainRate = this.isMassive ? 0.0015 : 0.003;
+                    this.mass -= drainRate * power;
+                    this.absorbedTotal += drainRate * 1000;
+                    if (power > 0.8) {
+                        const penalty = this.isMassive ? 0.005 : 0.002;
+                        this.stability -= penalty;
+                    } else { this.stability += 0.001; }
+                } else {
+                    Universe.setState('STABLE');
+                    this.stability += 0.005;
+                }
+                this.stability = Math.max(0, Math.min(1, this.stability));
+                if (this.mass <= 0) this.handleWin();
+            },
+            handleWin() {
+                this.active = false;
+                if (this.isMassive) this.massiveConsumed++;
+                if (this.massiveConsumed >= 3) {
+                    Universe.triggerBigBang();
+                } else {
+                    Galaxy.startMigration();
+                }
+            },
+            resetCounters() {
+                this.absorbedTotal = 0;
+                this.massiveConsumed = 0;
+            }
+        };
+
+        // --- ANIMATION LOOP ---
+        function animate() {
+            requestAnimationFrame(animate);
+            time += 0.01;
+
+            if (Universe.state === 'BIG_BANG') {
+                Universe.updateRebirthSequence();
+                inputState.gravityPower = 0; // Lock input
+            } else {
+                inputState.gravityPower += (inputState.targetPower - inputState.gravityPower) * 0.1;
+                Galaxy.update();
+                StarSystem.update(inputState.gravityPower);
+            }
+
+            updateAudioEngine();
+            updateNarrative();
+            updateHUDDisplay();
+
+            // CAMERA & VISUALS
+            if (Universe.state !== 'BIG_BANG') {
+                scene.rotation.y += (inputState.rotY - scene.rotation.y) * 0.05;
+                scene.rotation.x += (inputState.rotX - scene.rotation.x) * 0.05;
+                camera.position.z = inputState.zoom;
+            }
+            
+            // Instability Shake
+            const shake = (1.0 - StarSystem.stability) * inputState.gravityPower;
+            if(Universe.state !== 'BIG_BANG') {
+                camera.position.x = (Math.random()-0.5) * shake;
+                camera.position.y = 10 + (Math.random()-0.5) * shake;
+            }
+            camera.lookAt(0,0,0);
+
+            // Alignment
+            blackHoleGroup.children[1].lookAt(camera.position); 
+            if(blackHoleGroup.userData.lensTop) {
+                blackHoleGroup.userData.lensTop.lookAt(camera.position);
+                blackHoleGroup.userData.lensBot.lookAt(camera.position);
+                blackHoleGroup.userData.lensTop.rotation.z=0; blackHoleGroup.userData.lensBot.rotation.z=Math.PI;
+            }
+
+            // Normal Gameplay Visuals
+            if (StarSystem.active && Universe.state !== 'MIGRATION' && Universe.state !== 'BIG_BANG') {
+                const baseScale = StarSystem.isMassive ? 1.5 : 1.0;
+                const scale = baseScale * Math.max(0, StarSystem.mass);
+                if (Universe.state === 'CONSUMING') {
+                    const vibe = inputState.gravityPower * 0.5;
+                    companionStar.position.set(VISUALS.starPos.x + (Math.random()-0.5)*vibe, VISUALS.starPos.y + (Math.random()-0.5)*vibe, VISUALS.starPos.z + (Math.random()-0.5)*vibe);
+                } else {
+                    companionStar.position.lerp(VISUALS.starPos, 0.1);
+                }
+                companionStar.scale.setScalar(scale);
+                
+                // Normal stream update
+                updateFeedingStream(feedingStream, companionStar.position, inputState.gravityPower);
+            }
+
+            // Jet Logic
+            if(Universe.state !== 'BIG_BANG') {
+                jetParticles.material.opacity = inputState.gravityPower;
+                jetParticles.material.size = 0.6 + (inputState.gravityPower * 0.4);
+                if(inputState.gravityPower > 0.01) updateJets();
+                accretionDisk.rotation.y = -time * 0.3 * (1 + inputState.gravityPower * 2);
+            } else if (Universe.state === 'BIG_BANG' && Universe.bigBangPhase === 'BINARY_CONSUME') {
+                // Jets animate during cinematic
+                updateJets();
+                accretionDisk.rotation.y -= 0.05;
+            }
+
+            composer.render();
+        }
+
+        // Helper for stream physics
+        function updateFeedingStream(streamObj, origin, power) {
+            const sPos = streamObj.geometry.attributes.position.array;
+            const sVel = streamObj.userData.vels;
+            const count = sPos.length/3;
+            const speedMult = 1 + (power * 4);
+            const turbulence = (1.0 - StarSystem.stability) * 2.0; 
+
+            for(let i=0; i<count; i++) {
+                const i3 = i*3;
+                let x = sPos[i3], y = sPos[i3+1], z = sPos[i3+2];
+                const d = Math.sqrt(x*x + z*z);
+                const gravity = (50/(d+0.1)) * 0.01 * speedMult;
+                const speed = (sVel[i] + gravity) * speedMult;
+                const ang = Math.atan2(z, x) - speed*0.2; 
+                const r = d - speed;
+                const wiggle = power * 0.5 + turbulence; 
+
+                if(r < 3.5) { 
+                    sPos[i3] = origin.x + (Math.random()-0.5)*2;
+                    sPos[i3+1] = origin.y + (Math.random()-0.5)*2;
+                    sPos[i3+2] = origin.z + (Math.random()-0.5)*2;
+                } else {
+                    sPos[i3] = Math.cos(ang)*r + (Math.random()-0.5)*wiggle;
+                    sPos[i3+1] = y * 0.95 + (Math.random()-0.5)*wiggle; 
+                    sPos[i3+2] = Math.sin(ang)*r + (Math.random()-0.5)*wiggle;
+                }
+            }
+            streamObj.geometry.attributes.position.needsUpdate = true;
+        }
+
+        function updateJets() {
+            const jPos = jetParticles.geometry.attributes.position.array;
+            const jVel = jetParticles.userData.vels;
+            const spray = (1.0 - StarSystem.stability) * 5.0; 
+            for(let i=0; i<VISUALS.jetCount; i++) {
+                const i3 = i*3;
+                let x = jPos[i3], y = jPos[i3+1], z = jPos[i3+2];
+                if(i%2==0) y += jVel[i]; else y -= jVel[i];
+                if(spray > 0.1) { x += (Math.random()-0.5) * spray * 0.1; z += (Math.random()-0.5) * spray * 0.1; }
+                if(Math.abs(y) > 80) { y = (Math.random()-0.5)*2; const r = Math.random()*1.5; const a = Math.random()*6.28; x = Math.cos(a)*r; z = Math.sin(a)*r; }
+                jPos[i3] = x; jPos[i3+1] = y; jPos[i3+2] = z;
+            }
+            jetParticles.geometry.attributes.position.needsUpdate = true;
+        }
+
+        function updateNarrative() {
+            const textEl = document.getElementById('narrative-display');
+            let msg = "";
+            const power = inputState.gravityPower;
+            if (Universe.state === 'BIG_BANG') return; // Handled by sequence
+            if (Universe.state === 'MIGRATION') { msg = "TRAVERSING GALACTIC VOID..."; textEl.style.color = "#00d2ff"; }
+            else if (StarSystem.stability < 0.3) { msg = "WARNING: GRAVITATIONAL COLLAPSE IMMINENT"; textEl.style.color = "#ff0000"; }
+            else if (power < 0.1) { msg = "MONITORING STELLAR MASS..."; textEl.style.color = "rgba(0, 255, 255, 0.8)"; }
+            else if (power < 0.6) { msg = "ACCRETION RATE INCREASING"; textEl.style.color = "#ffaa00"; }
+            else { msg = "CRITICAL: RELATIVISTIC JET IGNITION"; textEl.style.color = "#ff0055"; }
+            if (textEl.innerText !== msg) textEl.innerText = msg;
+        }
+
+        function updateHUDDisplay() {
+            if (Universe.state === 'INIT' || Universe.state === 'INTRO') return;
+            document.getElementById('hud-galaxy').innerText = Universe.currentGalaxyName;
+            document.getElementById('hud-phase').innerText = Universe.state;
+            document.getElementById('hud-mass-val').innerText = Math.floor(StarSystem.mass * 100) + "%";
+            document.getElementById('mass-fill').style.width = (StarSystem.mass * 100) + "%";
+            document.getElementById('mass-fill').style.backgroundColor = StarSystem.isMassive ? "#ff4400" : "#00d2ff";
+            document.getElementById('hud-stab-val').innerText = Math.floor(StarSystem.stability * 100) + "%";
+            document.getElementById('stability-fill').style.width = (StarSystem.stability * 100) + "%";
+            document.getElementById('hud-score').innerText = Math.floor(StarSystem.absorbedTotal).toLocaleString() + " M☉";
+            document.getElementById('hud-massive').innerText = StarSystem.massiveConsumed + "/3";
+        }
+
+        function updateHistoryUI() {
+            const list = document.getElementById('history-list');
+            list.style.display = 'block';
+            list.innerHTML = "";
+            Universe.history.forEach(name => {
+                const div = document.createElement('div');
+                div.className = 'history-item';
+                div.innerText = "UNIVERSE: " + name;
+                list.appendChild(div);
+            });
+        }
+
+        document.getElementById('start-btn').addEventListener('click', (e) => {
+            e.target.style.display = 'none';
+            document.getElementById('title-text').style.display = 'none';
+            document.getElementById('narrative-display').style.opacity = 0;
+            initAudioSystem(); initThree(); setupSceneObjects(); Galaxy.init();
+            Universe.state = 'INTRO';
+            document.getElementById('instructions-modal').style.display = 'flex';
+            initAI(); animate();
+        });
+
+        document.getElementById('instr-ok').addEventListener('click', () => {
+            document.getElementById('instructions-modal').style.display = 'none';
+            document.getElementById('ui-layer').style.opacity = 1;
+            document.getElementById('game-hud').style.display = 'block';
+            setTimeout(() => document.getElementById('game-hud').style.opacity = 1, 100);
+            StarSystem.spawn();
+            Universe.setState('STABLE');
+            document.getElementById('narrative-display').style.opacity = 0.8;
+        });
+
+        document.getElementById('naming-ok').addEventListener('click', () => {
+            const input = document.getElementById('galaxy-input');
+            const name = input.value.toUpperCase() || "UNKNOWN SECTOR";
+            document.getElementById('naming-modal').style.display = 'none';
+            input.value = "";
+            Universe.finalizeRebirth(name);
+        });
+
     </script>
 </body>
 </html>
